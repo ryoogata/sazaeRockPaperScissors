@@ -76,5 +76,22 @@ listMatrix$cont3 <- (listMatrix$"1" == listMatrix$"2" & listMatrix$"2" == listMa
 # 過去 5 手の内、 4 回連続同じ手がでているか否かの情報を追加
 listMatrix$cont4 <- (listMatrix$"1" == listMatrix$"2" & listMatrix$"2" == listMatrix$"3" & listMatrix$"3" == listMatrix$"4" ) | (listMatrix$"2" == listMatrix$"3" & listMatrix$"3" == listMatrix$"4" & listMatrix$"4" == listMatrix$"5" )
 
+# 予測の為の情報抽出
+predictDF <- tail(listMatrix, 1)[,c("hand", "1","2","3","4")]
+names(predictDF) <- c("1","2","3","4","5")
+
+# 過去 5 手の内、 2/3/4 回連続同じ手がでているか否かの情報を追加
+predictDF$cont2 <- predictDF$"1" == predictDF$"2" | predictDF$"2" == predictDF$"3" | predictDF$"3" == predictDF$"4" | predictDF$"4" == predictDF$"5"
+predictDF$cont3 <- (predictDF$"1" == predictDF$"2" & predictDF$"2" == predictDF$"3") | (predictDF$"2" == predictDF$"3" & predictDF$"3" == predictDF$"4") | (predictDF$"3" == predictDF$"4" & predictDF$"4" == predictDF$"5")
+predictDF$cont4 <- (predictDF$"1" == predictDF$"2" & predictDF$"2" == predictDF$"3" & predictDF$"3" == predictDF$"4" ) | (predictDF$"2" == predictDF$"3" & predictDF$"3" == predictDF$"4" & predictDF$"4" == predictDF$"5" )
+
+# 予測の為の行を整形
+predictDF$vol <- tail(listMatrix,1)[,"vol"] + 1
+predictDF$date <- as.character(as.Date(tail(listMatrix,1)[,"date"]) + 7)
+predictDF$hand <- "unknown"
+
+# リストに予測の為の行を追加
+listMatrix <- rbind(listMatrix, predictDF)
+
 # ファイルの書き出し
 write.table(listMatrix, file="past5hands.csv", sep=",", row.names = FALSE)
